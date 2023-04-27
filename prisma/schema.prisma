@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  DOCTOR
+  PATIENT
+  LAB
+  ADMIN
+}
+
+enum Sex {
+  M
+  F
+}
+
+model Users {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  email String @unique
+  name String
+  cro String
+  phone String?
+  clinic String?
+  cnpj String?
+  address String?
+  password String
+  active Boolean? @default(true)
+  admin Boolean @default(false)
+  role      Role     @default(USER)
+  orders     Orders[]
+  patients Patients[]
+  treatments Treatments[]
+  appointments Appointments[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Menus {
+  id Int @default(autoincrement())
+  uid String @unique @default(uuid())
+  title String
+  href String
+  icon String
+  admin Boolean @default(false)
+}
+
+model Products {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  title String
+  description String?
+  materials String[]
+  price Int @default(100)
+  active Boolean @default(true)
+  category String
+  orders     Orders[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Orders {
+  id Int @default(autoincrement())
+  uid String @unique @default(uuid())
+  user    Users?  @relation(fields: [user_id], references: [uid])
+  user_id  String
+  patient Patients? @relation(fields: [patient_id], references: [uid])
+  patient_id String?
+  patient_name String
+  patient_age Int
+  patient_phone String
+  patient_sex String
+  product Products? @relation(fields: [product_id], references: [uid])
+  product_id String
+  deadline String
+  deadline_period String
+  final_status Boolean
+  prepare_color String
+  final_color String
+  gum_color String
+  material String
+  category String
+  odgm String[]
+  map_a String[]
+  map_b String[]
+  antagonista Int
+  componentes Int
+  modelo_estudo Int
+  modelo_trabalho Int
+  moldeira Int
+  relacionamento_oclusao Int
+  outros Int
+  aditional_info String?
+  files String[]
+  status Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Maybe {
+  YES
+  NO
+  MAYBE
+}
+
+enum BloodPressureOps {
+  NORMAL
+  HIGH
+  LOW
+  CONTROLLED
+}
+
+enum BleedingOps {
+  NORMAL
+  EXCESSIVE
+}
+
+enum HealingOps {
+  NORMAL
+  SLOW
+}
+
+enum GumBleedingOps {
+  YES
+  NO
+  HYGIENE
+  SOMETIMES
+}
+
+model Patients {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  name String
+  age Int
+  phone String
+  cellphone String
+  sex Sex
+  address String
+  country String
+  state String
+  city String
+  zip String
+  rg String
+  exp_org String
+  cpf String
+  birth_date String
+  civ_status Int
+  profession String
+  email String
+  orders     Orders[]
+  appointments Appointments[]
+  treatments Treatments[]
+  doctor    Users?  @relation(fields: [doctor_id], references: [uid])
+  doctor_id  String
+  taking_medicine Boolean? @default(false)
+  taking_medicine_description String?
+  medical_treatment Boolean? @default(false)
+  medical_treatment_description String?
+  has_alergy Maybe? @default(NO)
+  has_alergy_description String?
+  blood_pressure BloodPressureOps? @default(NORMAL)
+  blood_pressure_description String?
+  heart_problems Boolean? @default(false)
+  heart_problems_description String?
+  rheumatic_fever Boolean? @default(false)
+  has_diabetes Maybe? @default(NO)
+  bleeding BleedingOps? @default(NORMAL)
+  healing HealingOps? @default(NORMAL)
+  hepatitis Boolean? @default(false)
+  breathing_problems Boolean? @default(false)
+  gastric_problems Boolean? @default(false)
+  joint_problems Boolean? @default(false)
+  hiv Boolean? @default(false)
+  anesthesia_reaction Boolean? @default(false)
+  anesthesia_reaction_description String?
+  teeth_gum_pain Boolean? @default(false)
+  gum_bleeding GumBleedingOps? @default(NO)
+  ear_pain Boolean? @default(false)
+  mouth_pain Boolean? @default(false)
+  bruxism Boolean? @default(false)
+  smoke Boolean? @default(false)
+  alcohol Boolean? @default(false)
+  pregnant_breastfeeding Boolean? @default(false)
+  another_info Boolean? @default(false)
+  another_info_description String?
+  description String?
+  role Role @default(PATIENT)
+  default Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointments {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  doctor    Users?  @relation(fields: [doctor_id], references: [uid])
+  doctor_id  String
+  patient Patients? @relation(fields: [patient_id], references: [uid])
+  patient_id String
+  services Services[]
+  treatment Treatments? @relation(fields: [treatment_id], references: [uid])
+  treatment_id String
+  initial_time DateTime
+  finish_time DateTime
+  description String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Treatments {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  doctor    Users  @relation(fields: [doctor_id], references: [uid])
+  doctor_id  String
+  patient Patients @relation(fields: [patient_id], references: [uid])
+  patient_id String
+  appointments Appointments[]
+  initial_time DateTime
+  finish_time DateTime
+  description String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Services {
+  id  Int @id @default(autoincrement())
+  uid String @unique @default(uuid())
+  title String
+  description String
+  price Int @default(100)
+  appointments Appointments[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
